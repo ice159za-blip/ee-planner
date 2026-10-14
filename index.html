@@ -247,7 +247,7 @@ th{color:var(--t,var(--accent))}
 <body>
 <div class="wrap">
   <header>
-    <h1>ELECTRICAL ENGINEERING<small>ระบบวางแผนรายวิชาและเกรด</small></h1>
+    <h1> ELECTRICAL ENGINEERING <small>ระบบวางแผนรายวิชาและเกรด</small></h1>
     <div class="status"><span class="dot" id="dot"></span><span id="statusText">กำลังโหลด…</span></div>
   </header>
 
@@ -454,12 +454,17 @@ function visibleSubjects(){
       if (q) return (s.code + ' ' + s.name).toLowerCase().indexOf(q) >= 0;
       if (s.take) return true; // วิชาที่ติ๊กเรียนเทอมนี้แสดงเสมอ
       
-      // ถ้าอยู่หน้าแท็บ EE ให้ดึงเฉพาะวิชาที่เกรดว่างเปล่า (ยังไม่มีเกรด) มาแสดงทั้งหมด
-      if (fYear === 'EE') {
+      // ถ้าอยู่หน้าแท็บ EE ให้ดึงเฉพาะวิชาที่ไม่มีเกรด
+      if (fYear === 'ee') {
         return !s.grade || s.grade.trim() === '';
       }
       
-      // ถ้าอยู่แท็บชั้นปีปกติ 1-4 ให้กรองตามปีนั้นๆ
+      // เพิ่มเงื่อนไขนี้: ถ้าอยู่แท็บ Freshman (1) หรือ Sophomore (2) ให้ซ่อนหมวด tech1 และ tech2 ทันที
+      if ((fYear === '1' || fYear === '2') && (s.cat === 'tech1' || s.cat === 'tech2')) {
+        return false;
+      }
+      
+      // กรองตามชั้นปีปกติ
       if (fYear && String(s.year || '') !== fYear) return false;
       return true;
     });
