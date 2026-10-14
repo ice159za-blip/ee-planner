@@ -526,10 +526,19 @@ function visibleSubjects(){
       untakingItems.forEach(function(s){ (groups[s.cat] || groups['']).push(s); });
 
       SECTIONS.forEach(function(sec){
-        var items = groups[sec.key];
-        var cr = items.reduce(function(a, s){ return a + num(s.credits); }, 0);
-        
-        html += '<tr class="sec sec-' + sec.cls + '" style="pointer-events:none;"><td colspan="7"><span class="sec-title">' + sec.title + '</span>' +
+  // เพิ่มเงื่อนไขนี้: ถ้าอยู่ปี 1 หรือ 2 และเป็นหมวด tech1 หรือ tech2 ให้ข้ามการวาดหัวข้อนี้ไปเลย
+  if ((fYear === '1' || fYear === '2') && (sec.key === 'tech1' || sec.key === 'tech2')) {
+    return; 
+  }
+
+  var items = groups[sec.key];
+  var cr = items.reduce(function(a, s){ return a + num(s.credits); }, 0);
+
+  html += '<tr class="sec sec-' + sec.cls + '" style="pointer-events:none;"><td colspan="7"><span class="sec-title">' + sec.title + '</span>' +
+    '<span class="sec-meta">' + items.length + ' วิชา · ' + fmt(cr) + ' หน่วยกิต</span>' +
+    '<button class="secadd" style="pointer-events:auto;" data-addcat="' + sec.key + '">+ เพิ่มในหมวดนี้</button></td></tr>';
+    
+  if (!items.length) html += '<tr><td colspan="7" class="empty-sec">ยังไม่มีวิชาในหมวดนี้</td></tr>';
           '<span class="sec-meta">' + items.length + ' วิชา · ' + fmt(cr) + ' หน่วยกิต</span>' +
           '<button class="secadd" style="pointer-events:auto;" data-addcat="' + sec.key + '">+ เพิ่มในหมวดนี้</button></td></tr>';
         
