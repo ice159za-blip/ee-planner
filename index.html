@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Electrical Engineering</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Rajdhani:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:dark;
+  --bg:#040813; --bg-glow:rgba(40,130,255,.22); --grid:rgba(80,150,255,.07);
+  --surface:rgba(8,20,48,.78); --surface2:rgba(30,80,160,.18);
+  --text:#d8eaff; --muted:#7f9fcc; --line:rgba(70,150,255,.38);
+  --accent:#4aa8ff; --accent-text:#031024; --glow:rgba(60,150,255,.28);
+  --good:#3df0c4; --warn:#ffb340; --bad:#ff5a74;
+  --good-bg:rgba(61,240,196,.10); --warn-bg:rgba(255,179,64,.10); --bad-bg:rgba(255,90,116,.12);
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    color-scheme:light;
+    --bg:#e8f1ff; --bg-glow:rgba(40,120,255,.18); --grid:rgba(30,90,200,.07);
+    --surface:rgba(255,255,255,.88); --surface2:rgba(30,100,220,.08);
+    --text:#0b1d3a; --muted:#46659a; --line:rgba(21,101,216,.40);
+    --accent:#1565d8; --accent-text:#ffffff; --glow:rgba(21,101,216,.16);
+    --good:#0a8f6c; --warn:#b36200; --bad:#c4223f;
+    --good-bg:rgba(10,143,108,.10); --warn-bg:rgba(179,98,0,.10); --bad-bg:rgba(196,34,63,.10);
+  }
+}
+:root[data-theme="light"]{
+  color-scheme:light;
+  --bg:#e8f1ff; --bg-glow:rgba(40,120,255,.18); --grid:rgba(30,90,200,.07);
+  --surface:rgba(255,255,255,.88); --surface2:rgba(30,100,220,.08);
+  --text:#0b1d3a; --muted:#46659a; --line:rgba(21,101,216,.40);
+  --accent:#1565d8; --accent-text:#ffffff; --glow:rgba(21,101,216,.16);
+  --good:#0a8f6c; --warn:#b36200; --bad:#c4223f;
+  --good-bg:rgba(10,143,108,.10); --warn-bg:rgba(179,98,0,.10); --bad-bg:rgba(196,34,63,.10);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{
+  margin:0;color:var(--text);
+  font-family:'Rajdhani','Noto Sans Thai',system-ui,-apple-system,'Segoe UI',Tahoma,sans-serif;
+  font-size:16px;line-height:1.45;font-weight:500;
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(ellipse 70% 40% at 50% -5%, var(--bg-glow), transparent 70%),
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:auto, 44px 44px, 44px 44px;
+  background-attachment:fixed;
+  min-height:100vh;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:22px 16px 70px}
+
+/* header */
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--line);position:relative}
+header::after{content:"";position:absolute;left:0;bottom:-1px;width:120px;height:2px;background:var(--accent);box-shadow:0 0 12px var(--accent)}
+h1{font-family:'Orbitron','Rajdhani',sans-serif;font-size:clamp(19px,4.4vw,26px);margin:0;font-weight:800;letter-spacing:.1em;color:var(--text);text-shadow:0 0 14px var(--glow),0 0 2px var(--accent);animation:boot .9s steps(1,end) 1}
+h1 small{display:block;font-family:'Rajdhani','Noto Sans Thai',sans-serif;font-size:14px;font-weight:600;letter-spacing:.06em;color:var(--accent);text-shadow:none;margin-top:2px}
+@keyframes boot{0%{opacity:0}12%{opacity:1}20%{opacity:.2}34%{opacity:1}46%{opacity:.4}60%,100%{opacity:1}}
+.status{font-size:14px;color:var(--muted);display:flex;align-items:center;gap:8px;font-weight:600}
+#statusText::before{content:"[ "}#statusText::after{content:" ]"}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.dot.ok{background:var(--good);box-shadow:0 0 10px var(--good)}.dot.busy{background:var(--warn);box-shadow:0 0 10px var(--warn)}.dot.err{background:var(--bad);box-shadow:0 0 10px var(--bad)}
+
+/* HUD windows */
+.card,.tablebox{
+  position:relative;background:var(--surface);border:1px solid var(--line);border-radius:2px;
+  box-shadow:0 0 22px var(--glow), inset 0 0 28px var(--surface2);
+  backdrop-filter:blur(3px);
+}
+.card::before,.card::after,.tablebox::before,.tablebox::after{content:"";position:absolute;width:13px;height:13px;border:2px solid var(--accent);pointer-events:none;filter:drop-shadow(0 0 4px var(--accent))}
+.card::before,.tablebox::before{top:0;left:0;border-right:none;border-bottom:none}
+.card::after,.tablebox::after{bottom:0;right:0;border-left:none;border-top:none}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:14px;margin-bottom:22px}
+.card{padding:14px 16px 13px}
+.card.hl{border-color:var(--accent);box-shadow:0 0 30px var(--glow), inset 0 0 34px var(--surface2)}
+.card .k{font-size:14px;font-weight:700;color:var(--accent);letter-spacing:.04em;display:flex;align-items:center;gap:8px}
+.card .k::before{content:"";width:3px;height:13px;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+.card .v{font-family:'Orbitron','Rajdhani',sans-serif;font-size:28px;font-weight:700;margin-top:6px;font-variant-numeric:tabular-nums;text-shadow:0 0 12px var(--glow)}
+.card .v .of{font-size:18px;font-weight:500;color:var(--muted);text-shadow:none}
+.card .s{font-size:13.5px;color:var(--muted);margin-top:2px}
+.bar{height:5px;background:var(--surface2);margin-top:8px;border:1px solid var(--line);position:relative;overflow:hidden}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--good));box-shadow:0 0 10px var(--accent)}
+
+/* controls */
+input,select,button{font:inherit;color:var(--text)}
+input[type=text],input[type=number],select,input[type=search]{background:var(--surface2);border:1px solid var(--line);border-radius:2px;padding:6px 9px;min-width:0;transition: border-color 0.2s, box-shadow 0.2s;}
+input[type=search]{padding-left:12px}
+input::placeholder{color:var(--muted)}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px;box-shadow:0 0 12px var(--glow)}
+select{color-scheme:inherit; cursor:pointer;}
+select option{background:#0a1a3c;color:#d8eaff}
+button{background:transparent;border:1px solid var(--line);border-radius:2px;padding:7px 14px;cursor:pointer;font-weight:700;letter-spacing:.03em;transition:background .15s,box-shadow .15s,border-color .15s}
+button:hover{background:var(--surface2);border-color:var(--accent);box-shadow:0 0 14px var(--glow)}
+button.primary{background:var(--accent);color:var(--accent-text);border-color:var(--accent);box-shadow:0 0 16px var(--glow)}
+button.primary:hover{filter:brightness(1.12);box-shadow:0 0 22px var(--accent)}
+button.danger{color:var(--bad);border-color:transparent}
+button.danger:hover{border-color:var(--bad);box-shadow:0 0 12px var(--bad-bg);background:var(--bad-bg)}
+button.danger.arm{background:var(--bad);color:#fff;border-color:var(--bad)}
+label.chk{display:flex;align-items:center;gap:7px;font-size:14px;color:var(--muted);cursor:pointer;font-weight:600}
+input[type=checkbox]{accent-color:var(--accent)}
+
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.tabs button{padding:6px 18px;border-radius:0;clip-path:polygon(9px 0,100% 0,calc(100% - 9px) 100%,0 100%);border:none;background:var(--surface2);color:var(--muted)}
+.tabs button:hover{color:var(--text);box-shadow:none;background:var(--glow)}
+.tabs button.primary{background:var(--accent);color:var(--accent-text);box-shadow:none}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.toolbar .grow{flex:1;min-width:170px}
+.mini{width:58px;font-family:'Orbitron','Rajdhani',sans-serif;font-size:16px;font-weight:700;text-align:center;padding:2px 4px;background:var(--surface2);border:1px solid var(--line);border-radius:2px}
+
+/* table & animations */
+.tablebox{overflow-x:auto}
+@keyframes fadeSlide {
+  0% { opacity: 0; transform: translateY(15px); filter: blur(3px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+table{width:100%;border-collapse:collapse;min-width:860px}
+th{font-size:13.5px;text-align:left;color:var(--accent);font-weight:700;letter-spacing:.04em;padding:11px 8px;border-bottom:1px solid var(--line);background:var(--surface2);white-space:nowrap}
+td{padding:5px 6px;border-bottom:1px solid rgba(70,150,255,.14);vertical-align:middle; transition: background 0.2s;}
+tr:last-child td{border-bottom:none}
+
+/* hover styles for clickable rows */
+tbody tr.data-row { cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s; }
+tbody tr.data-row:not(.taking):hover td { background: color-mix(in srgb, var(--accent) 15%, transparent); }
+tbody tr.data-row.taking:hover td { background: color-mix(in srgb, var(--accent) 25%, transparent); }
+tbody tr.data-row td.edit-trig { transition: color 0.2s; }
+tbody tr.data-row:hover td.edit-trig { color: #fff; text-shadow: 0 0 5px rgba(255,255,255,0.4); }
+
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+td.ctr,th.ctr{text-align:center}
+td.ctr input[type=checkbox]{width:18px;height:18px;cursor:pointer}
+tr.taking td{background:var(--glow)}
+tr.taking td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+
+.w-take{width:9%}
+.w-cat{width:18%}
+.w-code{width:15%}
+.w-name{width:34%}
+.w-cr{width:9%}
+.w-gr{width:9%}
+.w-act{width:6%;text-align:center}
+
+.empty{padding:30px;text-align:center;color:var(--muted)}
+.empty-sec{padding:12px;text-align:center;color:var(--muted);font-size:14px}
+tr.sec td{padding:10px 12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:14.5px}
+tr.sec-main td{background:var(--surface2);color:var(--text)}
+tr.sec-general td{background:var(--good-bg);color:var(--good);box-shadow:inset 3px 0 0 var(--good)}
+tr.sec-frไtd{background:var(--warn-bg);color:var(--warn);box-shadow:inset 3px 0 0 var(--warn)}
+.sec-title{font-weight:700;letter-spacing:.05em;margin-right:12px}
+.sec-meta{font-size:13.5px;opacity:.85}
+.secadd{float:right;padding:2px 12px;font-size:13.5px;color:inherit;background:transparent;border-color:currentColor; transition: all 0.2s;}
+.secadd:hover{background: var(--surface2); color: #fff; box-shadow: 0 0 10px var(--glow);}
+tfoot td{font-weight:700;background:var(--surface2);border-top:1px solid var(--line)}
+
+.note{font-size:13.5px;color:var(--muted);margin-top:14px}
+.banner{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn);border-radius:2px;padding:10px 14px;margin-bottom:14px;font-size:14.5px;box-shadow:0 0 16px var(--warn-bg)}
+.banner::before{content:"[ ALERT ] ";font-weight:700;letter-spacing:.06em}
+.mini{width:78px}
+.mini::-webkit-inner-spin-button,.mini::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.mini{-moz-appearance:textfield;appearance:textfield}
+
+/* category sections + credit sub-groups */
+tr.sec-tech1 td{background:color-mix(in srgb,var(--cyan) 11%,transparent);color:var(--cyan);box-shadow:inset 3px 0 0 var(--cyan)}
+tr.sec-tech2 td{background:color-mix(in srgb,var(--violet) 11%,transparent);color:var(--violet);box-shadow:inset 3px 0 0 var(--violet)}
+tr.sub td{padding:5px 12px;font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.05em;background:transparent;border-bottom:1px solid rgba(70,150,255,.18)}
+tr.sub td span{margin-left:10px;font-weight:500;opacity:.8}
+tbody tr.sub:hover td{background:transparent}
+
+/* balanced stat cards */
+.cards{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.card{display:flex;flex-direction:column}
+.card .v{display:flex;align-items:baseline;flex-wrap:nowrap;gap:4px;white-space:nowrap}
+.card .v .of{display:flex;align-items:baseline;gap:4px}
+.card .s:last-of-type{margin-bottom:12px}
+.card .bar{margin-top:auto}
+.mini{width:64px}
+.mini.w2{width:54px}
+
+/* calmer rows */
+tr.taking td{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+tr.taking td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;width:18px;height:18px;margin:0;border:1.5px solid var(--line);background:transparent;position:relative;cursor:pointer;border-radius:2px;vertical-align:middle;transition:background .12s,box-shadow .12s}
+input[type=checkbox]:hover{border-color:var(--accent)}
+input[type=checkbox]:checked{background:var(--accent);border-color:var(--accent);box-shadow:0 0 10px var(--glow)}
+input[type=checkbox]:checked::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid var(--accent-text);border-width:0 2px 2px 0;transform:rotate(45deg)}
+button.danger{width:34px;padding:4px 0;font-size:16px;line-height:1.2;text-align:center}
+
+/* Edit Modal UI */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(4, 8, 19, 0.7); backdrop-filter: blur(6px); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
+.modal-overlay.show { opacity: 1; pointer-events: auto; }
+.modal-card { background: var(--surface); border: 1px solid var(--accent); border-radius: 4px; padding: 24px; width: 90%; max-width: 540px; box-shadow: 0 0 40px var(--glow), inset 0 0 20px var(--surface2); transform: scale(0.95) translateY(15px); transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); position: relative;}
+.modal-card::before,.modal-card::after{content:"";position:absolute;width:15px;height:15px;border:2px solid var(--accent);pointer-events:none;filter:drop-shadow(0 0 4px var(--accent))}
+.modal-card::before{top:-1px;left:-1px;border-right:none;border-bottom:none}
+.modal-card::after{bottom:-1px;right:-1px;border-left:none;border-top:none}
+.modal-overlay.show .modal-card { transform: scale(1) translateY(0); }
+.modal-card h3 { margin: 0 0 20px 0; color: var(--accent); font-family: 'Orbitron', 'Rajdhani', sans-serif; letter-spacing: 0.05em; text-shadow: 0 0 10px var(--glow); border-bottom: 1px solid var(--line); padding-bottom: 12px; font-size: 20px;}
+.m-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.m-col-span-2 { grid-column: span 2; }
+.m-group label { display: block; font-size: 13.5px; color: var(--muted); margin-bottom: 6px; font-weight: 600; letter-spacing: 0.03em;}
+.m-group input, .m-group select { width: 100%; padding: 8px 12px; background: rgba(10, 25, 60, 0.6); }
+.m-group input:focus, .m-group select:focus { background: var(--surface2); }
+.m-actions { display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--line); padding-top: 16px; }
+
+/* per-year tab colours */
+:root{--rose:#ff6fae}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--rose:#c2255c}}
+:root[data-theme="light"]{--rose:#c2255c}
+.tabs button[data-y="1"],.tablebox[data-year="1"]{--t:var(--cyan)}
+.tabs button[data-y="2"],.tablebox[data-year="2"]{--t:var(--violet)}
+.tabs button[data-y="3"],.tablebox[data-year="3"]{--t:var(--accent)}
+.tabs button[data-y="4"],.tablebox[data-year="4"]{--t:var(--rose)}
+.tabs button[data-y="EE"],.tablebox[data-year="EE"]{--t:var(--warn)}
+.tabs button{color:var(--t,var(--muted));background:color-mix(in srgb,var(--t,var(--accent)) 14%,transparent); transition: all 0.2s;}
+.tabs button:hover{color:var(--t);background:color-mix(in srgb,var(--t,var(--accent)) 28%,transparent); transform: translateY(-2px);}
+.tabs button.primary{background:var(--t);color:var(--accent-text);box-shadow:0 0 18px color-mix(in srgb,var(--t) 60%,transparent); transform: translateY(-2px);}
+.tablebox{border-color:color-mix(in srgb,var(--t,var(--accent)) 50%,transparent);box-shadow:0 0 22px color-mix(in srgb,var(--t,var(--accent)) 22%,transparent), inset 0 0 28px color-mix(in srgb,var(--t,var(--accent)) 8%,transparent)}
+.tablebox::before,.tablebox::after{border-color:var(--t,var(--accent));filter:drop-shadow(0 0 4px var(--t,var(--accent)))}
+th{color:var(--t,var(--accent))}
+
+/* per-card accent colours */
+:root{--violet:#b18cff;--cyan:#35d8f0}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--violet:#6d3fd9;--cyan:#0a86a8}}
+:root[data-theme="light"]{--violet:#6d3fd9;--cyan:#0a86a8}
+.card{--c:var(--accent);border-color:color-mix(in srgb,var(--c) 50%,transparent)}
+.cards .card:nth-child(1){--c:var(--accent)}
+.cards .card:nth-child(2){--c:var(--violet)}
+.cards .card:nth-child(3){--c:var(--cyan)}
+.cards .card:nth-child(4){--c:var(--good)}
+.cards .card:nth-child(5){--c:var(--warn)}
+.card::before,.card::after{border-color:var(--c);filter:drop-shadow(0 0 4px var(--c))}
+.card{box-shadow:0 0 22px color-mix(in srgb,var(--c) 22%,transparent), inset 0 0 28px color-mix(in srgb,var(--c) 10%,transparent)}
+.card.hl{border-color:var(--c)}
+.card .k{color:var(--c)}
+.card .k::before{background:var(--c);box-shadow:0 0 8px var(--c)}
+.card .v{text-shadow:0 0 12px color-mix(in srgb,var(--c) 55%,transparent)}
+.bar{border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.bar>i{background:linear-gradient(90deg,var(--c),color-mix(in srgb,var(--c) 60%,#fff));box-shadow:0 0 10px var(--c)}
+@media (prefers-reduced-motion: reduce){h1{animation:none}button{transition:none} tbody#rows {animation:none !important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>ELECTRICAL ENGINEERING<small>ระบบวางแผนรายวิชาและเกรด</small></h1>
+    <div class="status"><span class="dot" id="dot"></span><span id="statusText">กำลังโหลด…</span></div>
+  </header>
+
+  <div id="banner"></div>
+
+  <section class="cards">
+    <div class="card hl"><div class="k">เทอมนี้เรียน (หน่วยกิต)</div><div class="v" id="take">0</div><div class="s" id="takeSub"></div><div class="bar"><i id="takeBar" style="width:0%"></i></div></div>
+    <div class="card"><div class="k">เกรดเฉลี่ยสะสม (GPAX)</div><div class="v"><input type="number" class="mini" id="gpaxInput" min="0" max="4" step="0.01" aria-label="GPAX"></div><div class="s" id="gpaSub"></div><div class="bar"><i id="gpaBar" style="width:0%"></i></div></div>
+    <div class="card"><div class="k">หน่วยกิตที่ผ่าน</div><div class="v"><input type="number" class="mini" id="donePassed" min="0" aria-label="หน่วยกิตที่ผ่าน"><span class="of"> / <span id="needTotal">190</span></span></div><div class="s" id="earnedSub"></div><div class="bar"><i id="earnedBar" style="width:0%"></i></div></div>
+    <div class="card"><div class="k">วิชาเลือก (General)</div><div class="v"><input type="number" class="mini w2" id="doneGeneral" min="0" aria-label="General เรียนแล้ว"><span class="of"> / <input type="number" class="mini w2" id="needGeneral" min="0" aria-label="General ต้องเรียน"></span></div><div class="s" id="generalSub"></div><div class="bar"><i id="generalBar" style="width:0%"></i></div></div>
+    <div class="card"><div class="k">วิชาเสรี (Free)</div><div class="v"><input type="number" class="mini w2" id="doneFree" min="0" aria-label="Free เรียนแล้ว"><span class="of"> / <input type="number" class="mini w2" id="needFree" min="0" aria-label="Free ต้องเรียน"></span></div><div class="s" id="freeSub"></div><div class="bar"><i id="freeBar" style="width:0%"></i></div></div>
+  </section>
+
+  <div class="tabs" id="tabs"></div>
+  <div class="toolbar">
+    <input type="search" class="grow" id="q" placeholder="ค้นหารหัสวิชา / ชื่อวิชา…">
+    <span style="font-size: 14px; color: var(--muted); font-weight: 600; display: flex; align-items: center;">✓ S = Passed</span>
+    <button id="btnUndo" style="display:none">↶ Undo</button>
+    <button class="primary" id="btnAdd">+ เพิ่มวิชา</button>
+  </div>
+
+  <div class="tablebox">
+    <table>
+      <thead>
+        <tr>
+          <th class="w-take ctr">เรียนเทอมนี้</th>
+          <th class="w-cat">หมวด</th>
+          <th class="w-code">รหัสวิชา</th>
+          <th class="w-name">รายวิชา</th>
+          <th class="w-cr num">หน่วยกิต</th>
+          <th class="w-gr ctr">เกรด</th>
+          <th class="w-act"></th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+      <tfoot id="foot"></tfoot>
+    </table>
+  </div>
+  <div class="note">คลิกที่ "แถวของวิชา" เพื่อแก้ไขข้อมูล (รหัส, ชื่อ, หมวด, หน่วยกิต, เกรด) · ติ๊กถูกที่ "เรียนเทอมนี้" เพื่อรวมหน่วยกิตแบบรวดเร็ว</div>
+</div>
+
+<!-- Modal สำหรับแก้ไขวิชา -->
+<div id="editModal" class="modal-overlay">
+  <div class="modal-card">
+    <h3 id="mTitle">แก้ไขวิชา</h3>
+      <div class="m-grid">
+      <div class="m-group">
+        <label>ชั้นปี</label>
+        <select id="mYear">
+          <option value="1">Freshmen</option>
+          <option value="2">Sophomore</option>
+          <option value="3">Junior</option>
+          <option value="4">Senior</option>
+          <option value="EE">ETC</option>
+        </select>
+      </div>
+
+      <!-- โค้ดเดิม หมวดวิชา -->
+  <div class="m-group">
+        <label>หมวดวิชา</label>
+        <select id="mCat">
+          <option value="">Core Course</option>
+          <option value="tech1">Technical Set 1</option>
+          <option value="tech2">Technical Set 2</option>
+          <option value="general">Selected General</option>
+          <option value="free">Free Elective</option>
+        </select>
+      </div>
+
+  <div class="m-group">
+        <label>รหัสวิชา</label>
+        <input type="text" id="mCode" placeholder="เช่น ENG29 3145">
+      </div>
+  <div class="m-group">
+        <label>หน่วยกิต</label>
+        <select id="mCr">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3"selected>3</option>
+          <option value="4">4</option>
+        </select>
+      </div>
+      <div class="m-group m-col-span-2">
+        <label>ชื่อวิชา</label>
+        <input type="text" id="mName" placeholder="เช่น POWER SEMICONDUCTOR DRIVES">
+      </div>
+      <div class="m-group m-col-span-2">
+
+        <label>Grade</label>
+        <select id="mGr">
+          <option value=""> -   </option>
+          <option value="A">A</option>
+          <option value="B+">B+</option>
+          <option value="B">B</option>
+          <option value="C+">C+</option>
+          <option value="C">C</option>
+          <option value="D+">D+</option>
+          <option value="D">D</option>
+          <option value="F">F</option>
+          <option value="S">S</option>
+        </select>
+      </div>
+    </div>
+    <div class="m-actions">
+      <button id="mCancel"> CANCLE </button>
+      <button class="primary" id="mSave"> SAVE </button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Standalone mode: when opened outside Claude, store data in this browser (localStorage). */
+(function(){
+  if (typeof window.claude !== 'undefined') return;
+  var KEY = 'electrical-engineering-planner-v1';
+  var SEED = {"countS": true, "subjects": [{"cat": "", "code": "SCI03 1001", "credits": 4, "grade": "B+", "group": "1", "id": "s01", "name": "CALCULUS I", "take": false, "year": "1"}, {"cat": "", "code": "SCI03 1002", "credits": 4, "grade": "B+", "group": "5", "id": "s02", "name": "CALCULUS II", "take": false, "year": "1"}, {"cat": "", "code": "SCI03 1005", "credits": 4, "grade": "C+", "group": "3", "id": "s03", "name": "CALCULUS III", "take": false, "year": "1"}, {"cat": "", "code": "SCI05 1001", "credits": 4, "grade": "B+", "group": "1", "id": "s04", "name": "PHYSICS I", "take": false, "year": "1"}, {"cat": "", "code": "SCI05 1002", "credits": 4, "grade": "B+", "group": "3", "id": "s05", "name": "PHYSICS II", "take": false, "year": "1"}, {"cat": "", "code": "SCI02 1111", "credits": 4, "grade": "B", "group": "2", "id": "s06", "name": "FUNDAMENTAL CHEMISTRY I", "take": false, "year": "1"}, {"cat": "", "code": "ENG31 1001", "credits": 4, "grade": "C", "group": "1", "id": "s07", "name": "ENGINEERING MATERIALS", "take": false, "year": "1"}, {"cat": "", "code": "DGT00 0110", "credits": 4, "grade": "B+", "group": "7", "id": "s08", "name": "METALITERACY", "take": false, "year": "1"}, {"cat": "", "code": "IST20 1006", "credits": 3, "grade": "C+", "group": "1", "id": "s09", "name": "LEARNING COMPETENCIES", "take": false, "year": "1"}, {"cat": "", "code": "IST20 1007", "credits": 3, "grade": "C", "group": "1", "id": "s10", "name": "CITIZENSHIP AND GLOBAL CITIZENS", "take": false, "year": "1"}, {"cat": "", "code": "IST30 1101", "credits": 3, "grade": "S", "group": "", "id": "s11", "name": "ENGLISH FOR COMMUNICATION 1", "take": false, "year": "1"}, {"cat": "", "code": "IST30 1102", "credits": 3, "grade": "S", "group": "", "id": "s12", "name": "ENGLISH FOR COMMUNICATION 2", "take": false, "year": "1"}, {"cat": "", "code": "ENG25 1010", "credits": 2, "grade": "B+", "group": "1", "id": "s13", "name": "ENGINEERING GRAPHICS I", "take": false, "year": "1"}, {"cat": "", "code": "ENG23 1001", "credits": 2, "grade": "C+", "group": "1", "id": "s14", "name": "COMPUTER PROGRAMMING I", "take": false, "year": "1"}, {"cat": "", "code": "ENG20 1010", "credits": 1, "grade": "A", "group": "1", "id": "s15", "name": "INTRODUCTION TO ENGINEERING PROFESSION", "take": false, "year": "1"}, {"cat": "", "code": "SCI02 1112", "credits": 1, "grade": "B", "group": "28", "id": "s16", "name": "FUNDAMENTAL CHEMISTRY LABORATORY I", "take": false, "year": "1"}, {"cat": "", "code": "SCI05 1191", "credits": 1, "grade": "A", "group": "3", "id": "s17", "name": "PHYSICS LABORATORY I", "take": false, "year": "1"}, {"cat": "", "code": "SCI05 1192", "credits": 1, "grade": "B", "group": "5", "id": "s18", "name": "PHYSICS LABORATORY II", "take": false, "year": "1"}, {"cat": "", "code": "ENG29 2001", "credits": 4, "grade": "D+", "group": "", "id": "o01", "name": "ELECTRICAL ENGINEERING MATHEMATICS", "take": false, "year": "2"}, {"cat": "", "code": "ENG30 2001", "credits": 4, "grade": "D", "group": "", "id": "o02", "name": "ENGINEERING STATICS", "take": false, "year": "2"}, {"cat": "", "code": "ENG29 2143", "credits": 4, "grade": "C+", "group": "", "id": "o03", "name": "ELECTRICAL MACHINES", "take": false, "year": "2"}, {"cat": "", "code": "ENG29 2002", "credits": 3, "grade": "C+", "group": "", "id": "o04", "name": "PROBABILITY AND STATISTICS FOR ELECTRICAL ENGINEERS", "take": false, "year": "2"}, {"cat": "", "code": "ENG29 2111", "credits": 3, "grade": "C", "group": "", "id": "o05", "name": "ELECTRIC CIRCUITS", "take": false, "year": "2"}, {"cat": "", "code": "ENG29 2113", "credits": 3, "grade": "C+", "group": "", "id": "o06", "name": "ENGINEERING ELECTRONICS", "take": false, "year": "2"}, {"cat": "", "code": "ENG29 2122", "credits": 3, "grade": "C", "group": "", "id": "o07", "name": "DIGITAL CIRCUIT AND LOGIC DESIGN", "take": false, "year": "2"}, {"cat": "", "code": "ENG29 2141", "credits": 3, "grade": "C+", "group": "", "id": "o08", "name": "ELECTROMAGNETIC FIELDS", "take": false, "year": "2"}, {"cat": "", "code": "ENG29 2004", "credits": 3, "grade": "B", "group": "", "id": "o09", "name": "HEAT AND FLUID POWER", "take": false, "year": "2"}, {"cat": "", "code": "ENG29 2115", "credits": 3, "grade": "A", "group": "", "id": "o10", "name": "CIRCUIT ANALYSIS AND FILTERS", "take": false, "year": "2"}, {"cat": "", "code": "ENG29 2142", "credits": 3, "grade": "C", "group": "", "id": "o11", "name": "POWER ELECTRONICS", "take": false, "year": "2"}, {"cat": "", "code": "ENG29 3131", "credits": 3, "grade": "C", "group": "", "id": "o12", "name": "ELECTRICAL MEASUREMENTS AND INSTRUMENTATION", "take": false, "year": "2"}, {"cat": "", "code": "IST30 1104", "credits": 3, "grade": "A", "group": "", "id": "o13", "name": "ENGLISH FOR ACADEMIC PURPOSES", "take": false, "year": "2"}, {"cat": "", "code": "IST30 1105", "credits": 3, "grade": "B+", "group": "", "id": "o14", "name": "ENGLISH FOR CARREER", "take": false, "year": "2"}, {"cat": "", "code": "ENG29 2151", "credits": 2, "grade": "A", "group": "", "id": "o15", "name": "ELECTRICAL SCHEMATIC PRINT READING", "take": false, "year": "2"}, {"cat": "", "code": "ENG29 2003", "credits": 2, "grade": "A", "group": "", "id": "o16", "name": "NUMERICAL COMPUTATION FOR ELECTRICAL ENGINEERS", "take": false, "year": "2"}, {"cat": "", "code": "ENG29 2121", "credits": 2, "grade": "A", "group": "", "id": "o17", "name": "COMPUTER PROGRAMMING FOR ELECTRICAL ENGINEERS", "take": false, "year": "2"}, {"cat": "", "code": "ENG29 2112", "credits": 1, "grade": "A", "group": "", "id": "o18", "name": "CIRCUITS & DEVICES LABORATORY", "take": false, "year": "2"}, {"cat": "", "code": "ENG29 2114", "credits": 1, "grade": "A", "group": "", "id": "o19", "name": "ENGINEERING ELECTRONICS LABORATORY", "take": false, "year": "2"}, {"cat": "", "code": "ENG29 2931", "credits": 1, "grade": "S", "group": "", "id": "o20", "name": "COMPETENCY STRENGTHENING FOR ELECTRICAL ENGINEERS I", "take": false, "year": "2"}, {"cat": "general", "code": "IST20 1505", "credits": 2, "grade": "C+", "group": "", "id": "o21", "name": "ART APPRECIATION", "take": false, "year": "2"}, {"cat": "general", "code": "ENG20 1110", "credits": 2, "grade": "B+", "group": "", "id": "o22", "name": "PERSONAL FINANCE", "take": false, "year": "2"}, {"cat": "general", "code": "IPH20 4031", "credits": 2, "grade": "A", "group": "", "id": "o23", "name": "ADOLESCENT AND YOUTH SAFETY", "take": false, "year": "2"}, {"cat": "", "code": "ENG29 3145", "credits": 4, "grade": "", "group": "", "id": "j01", "name": "POWER SEMICONDUCTOR DRIVES", "take": true, "year": "3"}, {"cat": "", "code": "ENG29 3154", "credits": 4, "grade": "", "group": "", "id": "j02", "name": "ELECTRICAL POWER SYSTEM", "take": true, "year": "3"}, {"cat": "", "code": "ENG29 3123", "credits": 3, "grade": "", "group": "", "id": "j03", "name": "MICROCONTROLLERS", "take": true, "year": "3"}, {"cat": "", "code": "ENG29 3132", "credits": 3, "grade": "", "group": "", "id": "j04", "name": "CONTROL SYSTEMS", "take": true, "year": "3"}, {"cat": "", "code": "ENG29 3146", "credits": 1, "grade": "", "group": "", "id": "j05", "name": "POWER ELECTRONIC DRIVES LABORATORY", "take": true, "year": "3"}, {"cat": "", "code": "ENG29 3144", "credits": 1, "grade": "", "group": "", "id": "j06", "name": "ELECTRICAL MACHINES LABORATORY", "take": true, "year": "3"}, {"cat": "tech1", "code": "ENG29 3211", "credits": 4, "grade": "", "group": "", "id": "j07", "name": "HIGH VOLTAGE ENGINEERING", "take": false, "year": "3"}, {"cat": "tech1", "code": "ENG29 3212", "credits": 4, "grade": "", "group": "", "id": "j08", "name": "Protection and Relay", "take": false, "year": "3"}, {"cat": "tech1", "code": "ENG29 3221", "credits": 4, "grade": "", "group": "", "id": "j09", "name": "Railway Electrification", "take": false, "year": "3"}, {"cat": "tech1", "code": "ENG29 3231", "credits": 4, "grade": "", "group": "", "id": "j10", "name": "Sensors and Transducers", "take": false, "year": "3"}, {"cat": "tech1", "code": "ENG29 3242", "credits": 4, "grade": "", "group": "", "id": "j11", "name": "Energy Conservation and Management", "take": false, "year": "3"}, {"cat": "tech1", "code": "ENG29 3251", "credits": 4, "grade": "", "group": "", "id": "j12", "name": "Materials", "take": false, "year": "3"}, {"cat": "tech2", "code": "ENG29 3312", "credits": 3, "grade": "", "group": "", "id": "j13", "name": "Optimization", "take": false, "year": "3"}, {"cat": "tech2", "code": "ENG29 3322", "credits": 3, "grade": "", "group": "", "id": "j14", "name": "PLC", "take": false, "year": "3"}, {"cat": "tech2", "code": "ENG29 3332", "credits": 3, "grade": "", "group": "", "id": "j15", "name": "Advanced Design", "take": false, "year": "3"}, {"cat": "tech2", "code": "ENG29 3313", "credits": 3, "grade": "", "group": "", "id": "j16", "name": "Power System Simulation", "take": false, "year": "3"}, {"cat": "tech2", "code": "ENG29 3321", "credits": 3, "grade": "", "group": "", "id": "j17", "name": "Industrial Electricity", "take": false, "year": "3"}, {"cat": "tech2", "code": "ENG29 3323", "credits": 3, "grade": "", "group": "", "id": "j18", "name": "แก้ปัญหามอเตอร์ในอุตสาหกรรม", "take": false, "year": "3"}, {"cat": "free", "code": "IST20 2002", "credits": 3, "grade": "", "group": "", "id": "j22", "name": "MAN-ECONOMY AND DEVELOPMENT", "take": false, "year": "3"}, {"cat": "free", "code": "IST20 2002", "credits": 3, "grade": "A", "group": "", "id": "j23", "name": "MAN, SOCIETY AND ENVIRONMENT", "take": true, "year": "3"}, {"cat": "", "code": "", "credits": 3, "grade": "", "group": "", "id": "smv7xuccmtdyw", "name": "", "take": false, "year": "4"}], "goals": {"free": {"done": 3, "need": 8}, "general": {"done": 6, "need": 13}, "gpax": 2.89, "passed": 120, "registered": 126, "total": 190}};
+  function read(){
+    try { var r = localStorage.getItem(KEY); if (r) return JSON.parse(r); } catch (e) {}
+    return JSON.parse(JSON.stringify(SEED));
+  }
+  function write(d){ try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) { console.error(e); } }
+  window.claude = { use: async function(name){
+    if (name === 'db') return { doc: function(){ return {
+      set: async function(d){ write(d); },
+      onSnapshot: function(cb){ setTimeout(function(){ var d = read(); cb({ exists: true, data: function(){ return d; } }); }, 0); return function(){}; }
+    }; } };
+    return null;
+  } };
+})();
+</script>
+<script>
+(function(){
+  var GRADE_COLORS = { 'A':'#ffd24a', 'B+':'#35d8f0', 'B':'#4aa8ff', 'C+':'#b18cff', 'C':'#ff8fd0', 'D+':'#ffb340', 'D':'#ff8a50', 'F':'#ff5a74', 'S':'#3df0c4' };
+  var GRADES = [
+    {g:'A',v:4},{g:'B+',v:3.5},{g:'B',v:3},{g:'C+',v:2.5},{g:'C',v:2},{g:'D+',v:1.5},{g:'D',v:1},{g:'F',v:0},{g:'S',v:null}
+  ];
+  var CAT_NAMES = { 'tech1': 'Technical Set 1', 'tech2': 'Technical Set 2', 'general': 'Selected General', 'free': 'Free Elective' };
+  var YEARS = [['1','Freshmen'],['2','Sophomore'],['3','Junior'],['4','Senior'], ['EE',' ETC.']];
+  var state = { subjects: [], countS: true, goals: { total: 190, passed: 120, registered: 126, gpax: 2.89, general: { need: 13, done: 6 }, free: { need: 8, done: 3 } } };
+  var lastEarned = 0;
+  var fYear = '3';
+  var lastDeleted = null;
+  var db = null, ref = null, loaded = false;
+  var saving = false, dirty = false, saveTimer = null;
+  var armedDelete = null;
+  var editingId = null;
+
+  var $ = function(id){ return document.getElementById(id); };
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function uid(){ return 's' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+  function num(x){ var n = parseFloat(x); return isFinite(n) ? n : 0; }
+  function fmt(n){ return (Math.round(n * 100) / 100).toString(); }
+
+  function gradeValue(g){
+    if (!g) return null;
+    if (g === 'S') 4;
+    for (var i = 0; i < GRADES.length; i++) if (GRADES[i].g === g) return GRADES[i].v;
+    return null;
+  }
+
+  function setStatus(kind, text){
+    $('dot').className = 'dot ' + kind;
+    $('statusText').textContent = text;
+  }
+
+  /* ---------- persistence ---------- */
+  function scheduleSave(){
+    if (!db) return;
+    dirty = true;
+    setStatus('busy', 'กำลังบันทึก…');
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(flush, 400);
+  }
+  async function flush(){
+    if (saving || !dirty || !ref) return;
+    saving = true; dirty = false;
+    try {
+      await ref.set({ subjects: state.subjects, countS: !!state.countS, goals: state.goals, updatedAt: Date.now() });
+      if (!dirty) setStatus('ok', 'บันทึกแล้ว');
+    } catch (e) {
+      console.error(e);
+      dirty = false;
+      setStatus('err', 'บันทึกไม่สำเร็จ');
+      if (e && e.code === 'invalid_argument') {
+        $('banner').innerHTML = '<div class="banner">บัญชีนี้ไม่มีสิทธิ์แก้ไขข้อมูล (ดูได้อย่างเดียว)</div>';
+      }
+    }
+    saving = false;
+    if (dirty) flush();
+  }
+
+  /* ---------- Animations ---------- */
+  function triggerAnim(){
+    var rows = $('rows');
+    rows.style.animation = 'none';
+    void rows.offsetWidth; /* trigger reflow */
+    rows.style.animation = 'fadeSlide 0.35s cubic-bezier(0.1, 0.9, 0.2, 1) forwards';
+  }
+
+  /* ---------- render ---------- */
+function visibleSubjects(){
+    var q = $('q').value.trim().toLowerCase();
+    return state.subjects.filter(function(s){
+      if (q) return (s.code + ' ' + s.name).toLowerCase().indexOf(q) >= 0;
+      if (s.take) return true; // วิชาที่ติ๊กเรียนเทอมนี้แสดงเสมอ
+      
+      // ถ้าอยู่หน้าแท็บ EE ให้ดึงเฉพาะวิชาที่เกรดว่างเปล่า (ยังไม่มีเกรด) มาแสดงทั้งหมด
+      if (fYear === 'EE') {
+        return !s.grade || s.grade.trim() === '';
+      }
+      
+      // ถ้าอยู่แท็บชั้นปีปกติ 1-4 ให้กรองตามปีนั้นๆ
+      if (fYear && String(s.year || '') !== fYear) return false;
+      return true;
+    });
+  }
+
+  var SECTIONS = [
+    { key: '',        title: 'Core Course',                          cls: 'main' },
+    { key: 'tech1',   title: 'Technical Set 1',                   cls: 'tech1' },
+    { key: 'tech2',   title: 'Technical Set 2',                   cls: 'tech2' },
+    { key: 'general', title: 'Selected General Education Course', cls: 'general' },
+    { key: 'free',    title: 'Free Elective Course',              cls: 'free' }
+  ];
+
+  function rowHtml(s){
+    var catName = CAT_NAMES[s.cat] || 'Core Course';
+    var displayGrade = s.grade || '–';
+    var gCol = GRADE_COLORS[s.grade] || 'var(--muted)';
+    var isGrade = s.grade ? 'font-weight:700; color:' + gCol + ';' : '';
+
+    return '<tr data-id="' + esc(s.id) + '" class="data-row' + (s.take ? ' taking' : '') + '">' +
+      '<td class="ctr"><input type="checkbox" data-f="take"' + (s.take ? ' checked' : '') + ' aria-label="เรียนเทอมนี้"></td>' +
+      '<td class="edit-trig">' + catName + '</td>' +
+      '<td class="edit-trig">' + esc(s.code) + '</td>' +
+      '<td class="edit-trig">' + esc(s.name) + '</td>' +
+      '<td class="ctr edit-trig">' + num(s.credits) + '</td>' +
+      '<td class="ctr edit-trig"><span style="' + isGrade + '">' + displayGrade + '</span></td>' +
+      '<td class="w-act""><button class="danger' + (armedDelete === s.id ? ' arm' : '') + '" data-del="1" aria-label="ลบวิชา" title="' + (armedDelete === s.id ? 'กดอีกครั้งเพื่อยืนยันการลบ' : 'ลบวิชา') + '">' + (armedDelete === s.id ? '✓' : '✕') + '</button></td>' +
+      '</tr>';
+  }
+
+  function render(){
+    var list = visibleSubjects();
+    var html = '';
+    if (!loaded) {
+      html = '<tr><td colspan="7" class="empty">กำลังโหลดข้อมูล…</td></tr>';
+    } else {
+      var takingItems = list.filter(function(s){ return s.take; });
+      var untakingItems = list.filter(function(s){ return !s.take; });
+
+      // ฟังก์ชันจัดเรียง: 0 (ไม่มีเกรด) มาก่อน 1 (มีเกรดแล้ว) -> วิชาที่มีเกรดจะตกไปอยู่ล่างสุด
+      var sortFn = function(a, b){ 
+          var aGrade = a.grade ? 1 : 0;
+          var bGrade = b.grade ? 1 : 0;
+          if (aGrade !== bGrade) return aGrade - bGrade;
+          return num(b.credits) - num(a.credits); 
+      };
+
+      if (takingItems.length > 0) {
+        var takingCr = takingItems.reduce(function(a, s){ return a + num(s.credits); }, 0);
+        html += '<tr class="sec sec-main" style="background:var(--glow);color:var(--accent);box-shadow:inset 3px 0 0 var(--accent); pointer-events:none;">' +
+          '<td colspan="7"><span class="sec-title">★ วิชาที่ลงเรียนเทอมนี้</span>' +
+          '<span class="sec-meta">' + takingItems.length + ' วิชา · ' + fmt(takingCr) + ' หน่วยกิต</span></td></tr>';
+        
+        takingItems.sort(sortFn);
+        takingItems.forEach(function(s){ html += rowHtml(s); });
+      }
+
+      var groups = {}; SECTIONS.forEach(function(sec){ groups[sec.key] = []; });
+      untakingItems.forEach(function(s){ (groups[s.cat] || groups['']).push(s); });
+
+      SECTIONS.forEach(function(sec){
+        var items = groups[sec.key];
+        var cr = items.reduce(function(a, s){ return a + num(s.credits); }, 0);
+        
+        html += '<tr class="sec sec-' + sec.cls + '" style="pointer-events:none;"><td colspan="7"><span class="sec-title">' + sec.title + '</span>' +
+          '<span class="sec-meta">' + items.length + ' วิชา · ' + fmt(cr) + ' หน่วยกิต</span>' +
+          '<button class="secadd" style="pointer-events:auto;" data-addcat="' + sec.key + '">+ เพิ่มในหมวดนี้</button></td></tr>';
+        
+        if (!items.length) html += '<tr><td colspan="7" class="empty-sec">ยังไม่มีวิชาในหมวดนี้</td></tr>';
+        
+        var sorted = items.slice().sort(sortFn);
+        var distinct = {}; sorted.forEach(function(s){ distinct[num(s.credits)] = 1; });
+        var multi = Object.keys(distinct).length > 1, lastCr = null;
+        
+        sorted.forEach(function(s){
+          var c = num(s.credits);
+          if (multi && c !== lastCr) {
+            var n = sorted.filter(function(x){ return num(x.credits) === c; }).length;
+            if (n > 0) {
+              html += '<tr class="sub" style="pointer-events:none;"><td colspan="7">' + fmt(c) + ' Units<span>' + n + ' วิชา</span></td></tr>';
+            }
+            lastCr = c;
+          }
+          html += rowHtml(s);
+        });
+      });
+    }
+    $('rows').innerHTML = html;
+    renderSummary(list);
+  }
+
+  function renderSummary(list){
+    var totalCr = 0, earnedCr = 0, gpaCr = 0, pts = 0, maxPts = 0, graded = 0, failed = 0, takeCr = 0, takeN = 0;
+    state.subjects.forEach(function(s){
+      var cr = num(s.credits);
+      totalCr += cr;
+      if (s.take) { takeCr += cr; takeN++; }
+      if (s.grade) {
+        graded++;
+        var gv = gradeValue(s.grade);
+        if (s.grade === 'F') failed++;
+        else earnedCr += cr;
+        if (gv != null) { gpaCr += cr; pts += gv * cr; maxPts += 4 * cr; }
+      }
+    });
+    $('take').textContent = fmt(takeCr);
+    var remain = Math.max(0, state.goals.total - state.goals.passed);
+    $('takeSub').textContent = takeN ? takeN + ' วิชา · ' + (remain ? Math.round(takeCr / remain * 100) : 0) + '% ของที่เหลือ' : 'ยังไม่ได้ติ๊กวิชา';
+    setBar('takeBar', takeCr, remain);
+    var autoG = gpaCr ? pts / gpaCr : null;
+    setBar('gpaBar', state.goals.gpax || 0, 4);
+    $('gpaSub').textContent = autoG != null ? 'คำนวณจากตาราง ' + autoG.toFixed(2) : 'ยังไม่มีเกรด';
+    $('earnedSub').textContent = state.goals.passed >= state.goals.total ? 'ครบแล้ว ✓' : 'เหลืออีก ' + fmt(state.goals.total - state.goals.passed) + ' หน่วยกิต';
+    renderGoals(earnedCr);
+    
+    var shownCr = 0, shownPts = 0, shownGpaCr = 0;
+    list.forEach(function(s){
+      var c = num(s.credits); shownCr += c;
+      var gv = s.grade ? gradeValue(s.grade) : null;
+      if (gv != null) { shownPts += gv * c; shownGpaCr += c; }
+    });
+    $('foot').innerHTML = loaded && state.subjects.length
+      ? '<tr><td colspan="4">รวม ' + list.length + ' วิชา' + (shownGpaCr ? ' · GPA ' + (shownPts / shownGpaCr).toFixed(2) : '') + '</td><td class="num">' + fmt(shownCr) + '</td><td></td><td></td></tr>'
+      : '';
+  }
+
+  function renderTabs(){
+    var h = '';
+    YEARS.forEach(function(y){ h += '<button data-y="' + y[0] + '" class="' + (fYear === y[0] ? 'primary' : '') + '">' + y[1] + '</button>'; });
+    $('tabs').innerHTML = h;
+    document.querySelector('.tablebox').dataset.year = fYear;
+  }
+
+  function setBar(id, done, need){ $(id).style.width = (need ? Math.min(100, done / need * 100) : 0) + '%'; }
+  function renderGoals(earnedCr){
+    lastEarned = earnedCr;
+    var g = state.goals;
+    setBar('earnedBar', g.passed, g.total);
+    [['general','General'],['free','Free']].forEach(function(p){
+      var x = g[p[0]];
+      setBar(p[0] + 'Bar', x.done, x.need);
+      $(p[0] + 'Sub').textContent = x.done >= x.need ? 'ครบแล้ว ✓' : 'เหลืออีก ' + fmt(x.need - x.done) + ' หน่วยกิต';
+    });
+  }
+
+  function syncGoalInputs(){
+    var g = state.goals;
+    $('needTotal').textContent = g.total;
+    $('donePassed').value = g.passed;
+    $('gpaxInput').value = g.gpax;
+    $('doneGeneral').value = g.general.done; $('needGeneral').value = g.general.need;
+    $('doneFree').value = g.free.done; $('needFree').value = g.free.need;
+  }
+  
+  function bindGoal(id, setter){
+    $(id).addEventListener('change', function(){
+      setter(Math.max(0, num($(id).value)));
+      renderSummary(visibleSubjects());
+      scheduleSave();
+    });
+  }
+  
+  bindGoal('donePassed', function(v){ state.goals.passed = v; });
+  bindGoal('gpaxInput', function(v){ state.goals.gpax = Math.min(4, Math.round(v * 100) / 100); $('gpaxInput').value = state.goals.gpax; });
+  bindGoal('doneGeneral', function(v){ state.goals.general.done = v; });
+  bindGoal('needGeneral', function(v){ state.goals.general.need = v; });
+  bindGoal('doneFree', function(v){ state.goals.free.done = v; });
+  bindGoal('needFree', function(v){ state.goals.free.need = v; });
+
+  /* ---------- Modal & Events ---------- */
+  function findSubject(id){ for (var i = 0; i < state.subjects.length; i++) if (state.subjects[i].id === id) return state.subjects[i]; return null; }
+
+  function openModal(id, catFallback){
+    var s = id ? findSubject(id) : { cat: catFallback || '', code: '', name: '', credits: 3, grade: '' };
+    editingId = id || null;
+    $('mTitle').textContent = id ? 'Edit' : ' Add New ';
+    $('mCat').value = s.cat || '';
+    $('mYear').value = s.year && s.year !== 'ee' ? s.year : '1';
+    $('mCode').value = s.code || '';
+    $('mName').value = s.name || '';
+    $('mCr').value = s.credits || 3;
+    $('mGr').value = s.grade || '';
+    
+    $('editModal').classList.add('show');
+    setTimeout(function(){ $('mCode').focus(); }, 50);
+  }
+
+  function closeModal(){
+    $('editModal').classList.remove('show');
+    editingId = null;
+  }
+
+  $('mCancel').addEventListener('click', closeModal);
+  $('editModal').addEventListener('click', function(e){ if (e.target === $('editModal')) closeModal(); });
+
+  $('mSave').addEventListener('click', function(){
+    var s;
+    if (editingId) {
+      s = findSubject(editingId);
+    } else {
+      s = { id: uid(), year: fYear, take: false };
+      state.subjects.push(s);
+    }
+    s.year = $('mYear').value;
+    s.cat = $('mCat').value;
+    s.code = $('mCode').value;
+    s.name = $('mName').value;
+    s.credits = Math.max(0, num($('mCr').value));
+    s.grade = $('mGr').value;
+
+    closeModal();
+    triggerAnim();
+    render();
+    scheduleSave();
+  });
+
+  $('tabs').addEventListener('click', function(e){
+    var b = e.target.closest('button[data-y]');
+    if (!b || fYear === b.dataset.y) return;
+    fYear = b.dataset.y; armedDelete = null; 
+    renderTabs(); 
+    triggerAnim();
+    render();
+  });
+
+  $('rows').addEventListener('change', function(e){
+    var el = e.target, tr = el.closest('tr');
+    if (!tr || !el.dataset.f) return;
+    var s = findSubject(tr.dataset.id);
+    if (!s) return;
+    if (el.dataset.f === 'take') {
+      s.take = el.checked;
+      triggerAnim();
+      render();
+      scheduleSave();
+    }
+  });
+
+  $('rows').addEventListener('click', function(e){
+    var ad = e.target.closest('button[data-addcat]');
+    if (ad) { openModal(null, ad.dataset.addcat); return; }
+
+    var b = e.target.closest('button[data-del]');
+    if (b) {
+      var id = b.closest('tr').dataset.id;
+      if (armedDelete === id) {
+        var idx = state.subjects.findIndex(function(s){ return s.id === id; });
+        lastDeleted = idx >= 0 ? { s: state.subjects[idx], idx: idx } : null;
+        if (lastDeleted) { $('btnUndo').style.display = ''; $('btnUndo').title = 'เลิกลบ: ' + (lastDeleted.s.code || '') + ' ' + (lastDeleted.s.name || ''); }
+        state.subjects = state.subjects.filter(function(s){ return s.id !== id; });
+        armedDelete = null;
+        triggerAnim();
+        render(); scheduleSave();
+      } else {
+        armedDelete = id;
+        render();
+        setTimeout(function(){ if (armedDelete === id) { armedDelete = null; render(); } }, 3000);
+      }
+      return;
+    }
+
+    var editTrig = e.target.closest('.edit-trig');
+    if (editTrig) {
+      var id = editTrig.closest('tr').dataset.id;
+      openModal(id);
+    }
+  });
+
+  $('btnAdd').addEventListener('click', function(){ openModal(null, ''); });
+
+  $('btnUndo').addEventListener('click', function(){
+    if (!lastDeleted) return;
+    var i = Math.min(lastDeleted.idx, state.subjects.length);
+    state.subjects.splice(i, 0, lastDeleted.s);
+    lastDeleted = null;
+    $('btnUndo').style.display = 'none';
+    triggerAnim();
+    render(); scheduleSave();
+  });
+
+  $('q').addEventListener('input', render);
+
+  /* ---------- boot ---------- */
+  syncGoalInputs();
+  renderTabs();
+  triggerAnim();
+  render();
+
+  (async function(){
+    try { db = await claude.use('db'); } catch (e) { db = null; }
+    if (!db) {
+      loaded = true;
+      setStatus('err', 'ไม่ได้เชื่อมฐานข้อมูล');
+      $('banner').innerHTML = '<div class="banner">ยังเชื่อมฐานข้อมูลไม่ได้ (ต้องเข้าสู่ระบบ claude.ai) ข้อมูลที่แก้จะไม่ถูกบันทึก</div>';
+      render();
+      return;
+    }
+    ref = db.doc('planner/main');
+    ref.onSnapshot(function(snap){
+      loaded = true;
+      if (snap.exists && !dirty && !saving) {
+        var d = snap.data() || {};
+        state.subjects = Array.isArray(d.subjects) ? d.subjects.slice() : [];
+        state.countS = d.countS !== false;
+        if (d.goals && d.goals.general && d.goals.free) state.goals = d.goals;
+        state.goals.total = 190;
+        if (state.goals.passed == null) state.goals.passed = 120;
+        if (state.goals.registered == null) state.goals.registered = 126;
+        if (state.goals.gpax == null) state.goals.gpax = 2.89;
+        syncGoalInputs();
+        
+        // ถ้าหน้าต่างแก้ไขยังไม่เปิด ให้จัดการเรนเดอร์ปกติ
+        if (!editingId) renderSummary(visibleSubjects());
+        render();
+      } else if (!snap.exists) {
+        render();
+      }
+      if (!dirty && !saving) setStatus('ok', 'ซิงค์แล้ว');
+    }, function(err){
+      console.error(err);
+      loaded = true;
+      setStatus('err', 'อ่านข้อมูลไม่สำเร็จ');
+      render();
+    });
+  })();
+})();
+</script>
+</body>
+</html>
