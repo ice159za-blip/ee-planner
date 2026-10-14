@@ -7,6 +7,36 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Rajdhani:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* --- Solo Leveling System Theme Enhancements --- */
+body {
+  /* ปรับโทนฉากหลังให้มืดดุดันขึ้น ตัดกับเส้นเรืองแสง */
+  background-color: #020408;
+}
+
+/* ทำให้การ์ดและกล่องตารางมีขอบเรืองแสงสีฟ้า/ม่วงเข้มแบบหน้าต่างระบบ */
+.card, .tablebox {
+  border: 1px solid rgba(74, 168, 255, 0.5);
+  box-shadow: 0 0 15px rgba(74, 168, 255, 0.15), inset 0 0 20px rgba(0, 0, 0, 0.8);
+  transition: all 0.3s ease;
+}
+
+/* เอฟเฟกต์เวลาเอาเมาส์ชี้การ์ด ให้ขอบสว่างวาบขึ้นมาแบบตอนระบบแจ้งเตือน */
+.card:hover, .tablebox:hover {
+  border-color: #4aa8ff;
+  box-shadow: 0 0 25px rgba(74, 168, 255, 0.4), inset 0 0 15px rgba(74, 168, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+/* ตกแต่งปุ่มกดให้มีความเรืองแสงเวลา hover */
+button.primary {
+  background: linear-gradient(135deg, #4aa8ff, #1565d8);
+  box-shadow: 0 0 15px rgba(74, 168, 255, 0.4);
+  transition: all 0.2s ease;
+}
+button.primary:hover {
+  box-shadow: 0 0 25px rgba(74, 168, 255, 0.8);
+  filter: brightness(1.2);
+}
 :root{
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
@@ -127,8 +157,10 @@ tr:last-child td{border-bottom:none}
 
 /* hover styles for clickable rows */
 tbody tr.data-row { cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s; }
-tbody tr.data-row:not(.taking):hover td { background: color-mix(in srgb, var(--accent) 15%, transparent); }
-tbody tr.data-row.taking:hover td { background: color-mix(in srgb, var(--accent) 25%, transparent); }
+tbody tr.data-row:hover td {
+  background: color-mix(in srgb, var(--accent) 18%, transparent) !important;}
+tbody tr.data-row.taking:hover td {
+  background: color-mix(in srgb, var(--accent) 28%, transparent) !important;}
 tbody tr.data-row td.edit-trig { transition: color 0.2s; }
 tbody tr.data-row:hover td.edit-trig { color: #fff; text-shadow: 0 0 5px rgba(255,255,255,0.4); }
 
