@@ -247,7 +247,7 @@ button.danger{width:34px;padding:4px 0;font-size:16px;line-height:1.2;text-align
 .tabs button[data-y="2"],.tablebox[data-year="2"]{--t:var(--violet)}
 .tabs button[data-y="3"],.tablebox[data-year="3"]{--t:var(--accent)}
 .tabs button[data-y="4"],.tablebox[data-year="4"]{--t:var(--rose)}
-.tabs button[data-y="EE"],.tablebox[data-year="EE"]{--t:var(--warn)}
+.tabs button[data-y="ETC"],.tablebox[data-year="ETC"]{--t:var(--warn)}
 .tabs button{color:var(--t,var(--muted));background:color-mix(in srgb,var(--t,var(--accent)) 14%,transparent); transition: all 0.2s;}
 .tabs button:hover{color:var(--t);background:color-mix(in srgb,var(--t,var(--accent)) 28%,transparent); transform: translateY(-2px);}
 .tabs button.primary{background:var(--t);color:var(--accent-text);box-shadow:0 0 18px color-mix(in srgb,var(--t) 60%,transparent); transform: translateY(-2px);}
@@ -333,7 +333,7 @@ th{color:var(--t,var(--accent))}
           <option value="2">Sophomore</option>
           <option value="3">Junior</option>
           <option value="4">Senior</option>
-          <option value="EE">ETC</option>
+          <option value="ETC">ETC</option>
         </select>
       </div>
 
@@ -417,7 +417,7 @@ th{color:var(--t,var(--accent))}
     {g:'A',v:4},{g:'B+',v:3.5},{g:'B',v:3},{g:'C+',v:2.5},{g:'C',v:2},{g:'D+',v:1.5},{g:'D',v:1},{g:'F',v:0},{g:'S',v:null}
   ];
   var CAT_NAMES = { 'tech1': 'Technical Set 1', 'tech2': 'Technical Set 2', 'general': 'Selected General', 'free': 'Free Elective' };
-  var YEARS = [['1','Freshmen'],['2','Sophomore'],['3','Junior'],['4','Senior'], ['EE',' ETC.']];
+  var YEARS = [['1','Freshmen'],['2','Sophomore'],['3','Junior'],['4','Senior'], ['ETC',' ETC ']];
   var state = { subjects: [], countS: true, goals: { total: 190, passed: 120, registered: 126, gpax: 2.89, general: { need: 13, done: 6 }, free: { need: 8, done: 3 } } };
   var lastEarned = 0;
   var fYear = '3';
@@ -487,7 +487,7 @@ function visibleSubjects(){
       if (s.take) return true; // วิชาที่ติ๊กเรียนเทอมนี้แสดงเสมอ
       
       // ถ้าอยู่หน้าแท็บ EE ให้ดึงเฉพาะวิชาที่ไม่มีเกรด
-      if (fYear === 'ee') {
+      if (fYear === 'ETC') {
         return !s.grade || s.grade.trim() === '';
       }
       
@@ -683,7 +683,7 @@ function visibleSubjects(){
     editingId = id || null;
     $('mTitle').textContent = id ? 'Edit' : ' Add New ';
     $('mCat').value = s.cat || '';
-    $('mYear').value = s.year && s.year !== 'ee' ? s.year : '1';
+    $('mYear').value = s.year && s.year !== 'etc' ? s.year : '1';
     $('mCode').value = s.code || '';
     $('mName').value = s.name || '';
     $('mCr').value = s.credits || 3;
